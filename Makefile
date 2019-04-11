@@ -23,6 +23,10 @@ requirements: test_environment
 	$(PYTHON_INTERPRETER) -m pip install -U pip setuptools wheel
 	$(PYTHON_INTERPRETER) -m pip install -r requirements.txt
 
+## Transform tarred json files to csv
+transform:
+	$(PYTHON_INTERPRETER) src/data/tarred_json2csv.py
+
 
 ## Delete all compiled Python files
 clean:
