@@ -81,6 +81,9 @@ target/
 # Mac OS-specific storage files
 .DS_Store
 
+# Log files
+logs/*.txt
+
 # vim
 *.swp
 *.swo

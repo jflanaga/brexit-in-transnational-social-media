@@ -14,6 +14,7 @@ from typing import Dict, Iterable, List
 
 from src.utils import is_gz_file
 from src.paths import RAW_CORPUS, INTERIM_CORPUS
+from src.get_logs import logger
 
 
 def get_headings() -> List[str]:
@@ -125,7 +126,8 @@ def main(src_path: Path, dst_path: Path):
                         for line in lines:
                             tweet = json.loads(line)
                             writer.writerow(get_row(tweet))
-            except EOFError:
+            except Exception as e:
+                logger.warning(e)
                 continue
 
 
