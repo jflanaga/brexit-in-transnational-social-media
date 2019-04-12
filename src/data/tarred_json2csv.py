@@ -28,7 +28,6 @@ def get_headings() -> List[str]:
         'parsed_created_at',
         'user_screen_name',
         'text',
-        'extended_tweet',
         'tweet_type',
         'coordinates',
         'place',
