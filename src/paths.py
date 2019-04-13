@@ -10,3 +10,7 @@ RAW_CORPUS.mkdir(parents=True, exist_ok=True)
 
 INTERIM_CORPUS = BASE / 'data' / 'interim'
 INTERIM_CORPUS.mkdir(parents=True, exist_ok=True)
+
+# Get paths to test data
+TEST_DATA_DIRECTORY = BASE / 'src' / 'tests' / 'data'
+TEST_DATA_DIRECTORY.mkdir(parents=True, exist_ok=True)
