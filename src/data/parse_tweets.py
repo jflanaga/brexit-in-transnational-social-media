@@ -2,7 +2,7 @@
 # adapted from https://raw.githubusercontent.com/DocNow/twarc/master/twarc/json2csv.py
 
 
-from typing import Dict, Union
+from typing import Dict
 from src.utils import recursive_get
 
 
@@ -14,24 +14,24 @@ def text(t: Dict) -> str:
                                        {}).get('full_text') or t['text']
 
 
-def coordinates(t: Dict) -> Union[str, None]:
+def coordinates(t: Dict) -> str:
     """
     Get location coordinates in the form [longitude, latitude] (if available)
     """
     try:
         return '%f %f' % tuple(recursive_get(t, 'coordinates', 'coordinates'))
     except AttributeError:
-        return None
+        return ""
 
 
-def place(t: Dict) -> Union[str, None]:
+def place(t: Dict) -> str:
     """
     Full human-readable representation of the place’s name (if available)
     """
     try:
         return recursive_get(t, 'place', 'full_name')
     except AttributeError:
-        return None
+        return ""
 
 
 def hashtags(t: Dict) -> str:
@@ -42,7 +42,7 @@ def hashtags(t: Dict) -> str:
 
 
 # noinspection PyTypeChecker
-def media(t: Dict) -> Union[str, None]:
+def media(t: Dict) -> str:
     """
     An expanded version of display_url. Links to the media display page
     """
@@ -54,7 +54,7 @@ def media(t: Dict) -> Union[str, None]:
         if m:
             return ' '.join([h['expanded_url'] for h in t])
         else:
-            return None
+            return ""
 
 
 def urls(t: Dict) -> str:
@@ -64,7 +64,7 @@ def urls(t: Dict) -> str:
     return ' '.join([h['expanded_url'] or '' for h in t['entities']['urls']])
 
 
-def retweet_id(t: Dict) -> Union[str, None]:
+def retweet_id(t: Dict) -> str:
     """
     integer value Tweet ID of the retweeted or quoted Tweet
     """
@@ -75,10 +75,10 @@ def retweet_id(t: Dict) -> Union[str, None]:
     try:
         return recursive_get(t, 'quoted_status', 'id_str')
     except AttributeError:
-        return None
+        return ""
 
 
-def retweet_screen_name(t: Dict) -> Union[str, None]:
+def retweet_screen_name(t: Dict) -> str:
     """
     Name of Original Tweeter
     """
@@ -90,10 +90,10 @@ def retweet_screen_name(t: Dict) -> Union[str, None]:
     try:
         return recursive_get(t, 'quoted_status', 'user', 'screen_name')
     except AttributeError:
-        return None
+        return ""
 
 
-def retweet_user_id(t: Dict) -> Union[str, None]:
+def retweet_user_id(t: Dict) -> str:
     """
     Integer value Tweet ID of the Original Tweeter
     """
@@ -105,7 +105,7 @@ def retweet_user_id(t: Dict) -> Union[str, None]:
     try:
         return recursive_get(t, 'quoted_status', 'user', 'id_str')
     except AttributeError:
-        return None
+        return ""
 
 
 def tweet_url(t: Dict) -> str:
@@ -113,7 +113,7 @@ def tweet_url(t: Dict) -> str:
                                                  t['id_str'])
 
 
-def user_urls(t: Dict) -> Union[str, None]:
+def user_urls(t: Dict) -> str:
     """
     url of the Tweeter
     """
@@ -123,7 +123,7 @@ def user_urls(t: Dict) -> Union[str, None]:
         return " ".join([url[
             'expanded_url'] for url in u if url['expanded_url']])
     except AttributeError:
-        return None
+        return ""
 
 
 def tweet_type(t: Dict) -> str:
