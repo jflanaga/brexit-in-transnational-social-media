@@ -137,3 +137,38 @@ def tweet_type(t: Dict) -> str:
     if 'quoted_status' in t:
         return 'quote'
     return 'original'
+
+def all_hashtags(t: Dict) -> str:
+    """
+    Get all available hashtags, including quoted or retweeted
+    """
+    # extended tweet
+    try:
+        return ' '.join([
+            h['text']for h in recursive_get(
+                t, 'extended_tweet', 'entities', 'hashtags')
+                ])
+    except AttributeError:
+        pass
+    # retweets
+    try:
+        return ' '.join([
+           h['text']
+           for h in
+           recursive_get(t, 'retweeted_status', 'extended_tweet',
+                         'entities', 'hashtags')
+                         ])
+    except AttributeError:
+        pass
+    # quotes
+    try:
+        return ' '.join([
+           h['text']
+           for h in
+           recursive_get(t, 'quoted_status', 'extended_tweet',
+                         'entities', 'hashtags')
+                         ])
+    except AttributeError:
+        # standard hashtag field
+        return ' '.join(
+               [h['text'] for h in t['entities']['hashtags']])
