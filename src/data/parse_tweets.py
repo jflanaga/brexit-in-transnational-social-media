@@ -36,9 +36,45 @@ def place(t: Dict) -> str:
 
 def hashtags(t: Dict) -> str:
     """
-    Get hashtags found in body of tweet, minus # sign
+    Get all hashtags, including when tweet is truncated (if available)
     """
-    return ' '.join([h['text'] for h in t['entities']['hashtags']])
+    # extended tweet
+    try:
+        # noinspection PyTypeChecker
+        return ' '.join([
+            h['text']for h in recursive_get(
+                t, 'extended_tweet', 'entities', 'hashtags')
+        ])
+    except AttributeError:
+        # standard hashtag field
+        return ' '.join(
+               [h['text'] for h in t['entities']['hashtags']])
+
+
+def quoted_or_retweeted_hashtags(t: Dict) -> str:
+    """
+    Get quoted or retweeted hashtags
+    """
+    # retweets
+    try:
+        return ' '.join([
+           h['text']
+           for h in
+           recursive_get(t, 'retweeted_status', 'extended_tweet',
+                         'entities', 'hashtags')
+        ])
+    except AttributeError:
+        pass
+    # quotes
+    try:
+        return ' '.join([
+           h['text']
+           for h in
+           recursive_get(t, 'quoted_status', 'extended_tweet',
+                         'entities', 'hashtags')
+        ])
+    except AttributeError:
+        return ''
 
 
 # noinspection PyTypeChecker
@@ -137,41 +173,3 @@ def tweet_type(t: Dict) -> str:
     if 'quoted_status' in t:
         return 'quote'
     return 'original'
-
-
-# noinspection PyTypeChecker
-def all_hashtags(t: Dict) -> str:
-    """
-    Get all available hashtags, including quoted or retweeted
-    """
-    # extended tweet
-    try:
-        # noinspection PyTypeChecker
-        return ' '.join([
-            h['text']for h in recursive_get(
-                t, 'extended_tweet', 'entities', 'hashtags')
-                ])
-    except AttributeError:
-        pass
-    # retweets
-    try:
-        return ' '.join([
-           h['text']
-           for h in
-           recursive_get(t, 'retweeted_status', 'extended_tweet',
-                         'entities', 'hashtags')
-                         ])
-    except AttributeError:
-        pass
-    # quotes
-    try:
-        return ' '.join([
-           h['text']
-           for h in
-           recursive_get(t, 'quoted_status', 'extended_tweet',
-                         'entities', 'hashtags')
-                         ])
-    except AttributeError:
-        # standard hashtag field
-        return ' '.join(
-               [h['text'] for h in t['entities']['hashtags']])
