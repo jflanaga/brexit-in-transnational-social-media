@@ -1,5 +1,5 @@
 # -- coding: utf-8 --
-# adapted from https://raw.githubusercontent.com/DocNow/twarc/master/twarc/json2csv.py
+# adapted from https://github.com/DocNow/twarc/blob/master/twarc/json2csv.py
 
 import csv
 import codecs

@@ -1,5 +1,5 @@
 # -- coding: utf-8 --
-# adapted from https://raw.githubusercontent.com/DocNow/twarc/master/twarc/json2csv.py
+# adapted from https://github.com/DocNow/twarc/blob/master/twarc/json2csv.py
 
 
 from typing import Dict
@@ -137,6 +137,7 @@ def tweet_type(t: Dict) -> str:
     if 'quoted_status' in t:
         return 'quote'
     return 'original'
+
 
 def all_hashtags(t: Dict) -> str:
     """
