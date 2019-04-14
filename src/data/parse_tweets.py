@@ -139,12 +139,14 @@ def tweet_type(t: Dict) -> str:
     return 'original'
 
 
+# noinspection PyTypeChecker
 def all_hashtags(t: Dict) -> str:
     """
     Get all available hashtags, including quoted or retweeted
     """
     # extended tweet
     try:
+        # noinspection PyTypeChecker
         return ' '.join([
             h['text']for h in recursive_get(
                 t, 'extended_tweet', 'entities', 'hashtags')
