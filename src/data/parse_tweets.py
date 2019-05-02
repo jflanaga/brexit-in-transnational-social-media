@@ -1,7 +1,3 @@
-# -- coding: utf-8 --
-# adapted from https://github.com/DocNow/twarc/blob/master/twarc/json2csv.py
-
-
 from typing import Dict
 from contextlib import suppress
 from src.utils import pluck
