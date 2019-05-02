@@ -3,7 +3,8 @@
 
 
 from typing import Dict
-from src.utils import recursive_get
+from contextlib import suppress
+from src.utils import pluck
 
 
 def text(t: Dict) -> str:
@@ -14,24 +15,41 @@ def text(t: Dict) -> str:
                                        {}).get('full_text') or t['text']
 
 
+def extended_text(t: Dict) -> str:
+    with suppress(KeyError):
+        return pluck(t, 'extended_tweet.full_text')
+
+    with suppress(KeyError):
+        return pluck(t, 'retweeted_status.extended_tweet.full_text')
+
+    with suppress(KeyError):
+        return pluck(t, 'quoted_status.extended_tweet.full_text')
+
+    return ''
+
+
+def quote(t: Dict) -> str:
+    with suppress(KeyError):
+        return pluck(t, 'quoted_status.text')
+    return ''
+
+
 def coordinates(t: Dict) -> str:
     """
     Get location coordinates in the form [longitude, latitude] (if available)
     """
-    try:
-        return '%f %f' % tuple(recursive_get(t, 'coordinates', 'coordinates'))
-    except AttributeError:
-        return ""
+    with suppress(TypeError):
+        return '%f %f' % tuple(pluck(t, 'coordinates.coordinates'))
+    return ''
 
 
 def place(t: Dict) -> str:
     """
     Full human-readable representation of the place’s name (if available)
     """
-    try:
-        return recursive_get(t, 'place', 'full_name')
-    except AttributeError:
-        return ""
+    with suppress(TypeError):
+        return pluck(t, 'place.full_name')
+    return ''
 
 
 def hashtags(t: Dict) -> str:
@@ -39,42 +57,37 @@ def hashtags(t: Dict) -> str:
     Get all hashtags, including when tweet is truncated (if available)
     """
     # extended tweet
-    try:
+    with suppress(KeyError):
         # noinspection PyTypeChecker
         return ' '.join([
-            h['text']for h in recursive_get(
-                t, 'extended_tweet', 'entities', 'hashtags')
+            h['text'] for h in pluck(
+                t, 'extended_tweet.entities.hashtags')
         ])
-    except AttributeError:
-        # standard hashtag field
-        return ' '.join(
-               [h['text'] for h in t['entities']['hashtags']])
+    # standard hashtag field
+    return ' '.join(
+        [h['text'] for h in t['entities']['hashtags']])
 
 
+# noinspection PyTypeChecker
 def quoted_or_retweeted_hashtags(t: Dict) -> str:
     """
     Get quoted or retweeted hashtags
     """
     # retweets
-    try:
+    with suppress(KeyError):
         return ' '.join([
-           h['text']
-           for h in
-           recursive_get(t, 'retweeted_status', 'extended_tweet',
-                         'entities', 'hashtags')
+            h['text']
+            for h
+            in pluck(t, 'retweeted_status.extended_tweet.entities.hashtags')
         ])
-    except AttributeError:
-        pass
+
     # quotes
-    try:
+    with suppress(KeyError):
         return ' '.join([
-           h['text']
-           for h in
-           recursive_get(t, 'quoted_status', 'extended_tweet',
-                         'entities', 'hashtags')
+            h['text']
+            for h in pluck(t, 'quoted_status.extended_tweet.entities.hashtags')
         ])
-    except AttributeError:
-        return ''
+    return ''
 
 
 # noinspection PyTypeChecker
@@ -82,15 +95,15 @@ def media(t: Dict) -> str:
     """
     An expanded version of display_url. Links to the media display page
     """
-    m = recursive_get(t, 'entities', 'media')
-    if m:
-        return ' '.join([h['expanded_url'] for h in m])
-    else:
-        m = recursive_get(t, 'entities', 'media')
+    with suppress(KeyError):
+        m = pluck(t, 'extended_entities.media')
         if m:
-            return ' '.join([h['expanded_url'] for h in t])
-        else:
-            return ""
+            return ' '.join([h['expanded_url'] for h in m])
+    with suppress(KeyError):
+        m = pluck(t, 'entities.media')
+        if m:
+            return ' '.join([h['expanded_url'] for h in m])
+    return ''
 
 
 def urls(t: Dict) -> str:
@@ -104,44 +117,34 @@ def retweet_id(t: Dict) -> str:
     """
     integer value Tweet ID of the retweeted or quoted Tweet
     """
-    try:
-        return recursive_get(t, 'retweeted_status', 'id_str')
-    except AttributeError:
-        pass
-    try:
-        return recursive_get(t, 'quoted_status', 'id_str')
-    except AttributeError:
-        return ""
+    with suppress(KeyError):
+        return pluck(t, 'retweeted_status.id_str')
+
+    with suppress(KeyError):
+        return pluck(t, 'quoted_status.id_str')
+    return ""
 
 
 def retweet_screen_name(t: Dict) -> str:
     """
     Name of Original Tweeter
     """
-    try:
-        return recursive_get(t, 'retweeted_status', 'user', 'screen_name')
-    except AttributeError:
-        pass
-
-    try:
-        return recursive_get(t, 'quoted_status', 'user', 'screen_name')
-    except AttributeError:
-        return ""
+    with suppress(KeyError):
+        return pluck(t, 'retweeted_status.user.screen_name')
+    with suppress(KeyError):
+        return pluck(t, 'quoted_status.user.screen_name')
+    return ""
 
 
 def retweet_user_id(t: Dict) -> str:
     """
     Integer value Tweet ID of the Original Tweeter
     """
-    try:
-        return recursive_get(t, 'retweeted_status', 'user', 'id_str')
-    except AttributeError:
-        pass
-
-    try:
-        return recursive_get(t, 'quoted_status', 'user', 'id_str')
-    except AttributeError:
-        return ""
+    with suppress(KeyError):
+        return pluck(t, 'retweeted_status.user.id_str')
+    with suppress(KeyError):
+        return pluck(t, 'quoted_status.user.id_str')
+    return ""
 
 
 def tweet_url(t: Dict) -> str:
@@ -153,13 +156,13 @@ def user_urls(t: Dict) -> str:
     """
     url of the Tweeter
     """
-    try:
-        u = recursive_get(t, 'user', 'entities', 'url', 'urls')
+    with suppress(KeyError):
+        u = pluck(t, 'user.entities.url.urls')
         # noinspection PyTypeChecker,PyTypeChecker
         return " ".join([url[
-            'expanded_url'] for url in u if url['expanded_url']])
-    except AttributeError:
-        return ""
+                             'expanded_url'] for url in u
+                         if url['expanded_url']])
+    return ""
 
 
 def tweet_type(t: Dict) -> str:
