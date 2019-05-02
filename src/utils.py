@@ -1,15 +1,13 @@
-# from https://stackoverflow.com/a/28225794
 import binascii
-
-from typing import Union
+from typing import Dict, Union
 from pathlib import Path
 
 
-def recursive_get(d, *args, default=None) -> str:
-    if not args:
-        return d
-    key, *args = args
-    return recursive_get(d.get(key, default), *args, default=default)
+def pluck(obj: Dict, key_path: str) -> Union[int, str]:
+    """Deep query a dictionary"""
+    for key in key_path.split('.'):
+        obj = obj[key]
+    return obj
 
 
 # is_gz_file is from https://stackoverflow.com/a/54720588
