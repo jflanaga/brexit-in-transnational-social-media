@@ -4,7 +4,7 @@
 import csv
 import codecs
 import gzip
-import json
+import ujson as json
 
 import parse_tweets
 
@@ -108,13 +108,14 @@ def get_row(t: Dict) -> Iterable:
         user('verified'),)
 
 
-def main(src_path: Path, dst_path: Path):
+def main(src_path: Path, dst_path: Path, uncompressed=True):
     """
     Parses a directory of tweets of tarred json files
     and writes csv files with same base name to new directory
     """
+
     for filename in src_path.iterdir():
-        if is_gz_file(filename):
+        if not uncompressed and is_gz_file(filename):
             try:
                 dst_filename = filename.stem.split('.')[0] + '.csv'
                 dst_filepath = dst_path / dst_filename
@@ -122,6 +123,20 @@ def main(src_path: Path, dst_path: Path):
                     writer = csv.writer(dst_file)
                     writer.writerow(get_headings())
                     with gzip.open(filename, 'rt', encoding='utf-8') as lines:
+                        for line in lines:
+                            tweet = json.loads(line)
+                            writer.writerow(get_row(tweet))
+            except Exception as e:
+                logger.warning(e)
+                continue
+        elif filename.suffix in ('.jsonl', '.json'):
+            try:
+                dst_filename = filename.stem.split('.')[0] + '.csv'
+                dst_filepath = dst_path / dst_filename
+                with codecs.open(dst_filepath, 'wb', 'utf-8') as dst_file:
+                    writer = csv.writer(dst_file)
+                    writer.writerow(get_headings())
+                    with open(filename, 'rt', encoding='utf-8') as lines:
                         for line in lines:
                             tweet = json.loads(line)
                             writer.writerow(get_row(tweet))
