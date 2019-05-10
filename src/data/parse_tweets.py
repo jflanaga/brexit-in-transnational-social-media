@@ -7,6 +7,9 @@ def text(t: Dict) -> str:
     """
     Get text of tweet
     """
+    with suppress(KeyError):
+        return pluck(t, 'retweeted_status.full_text')
+
     return t.get('full_text') or t.get('extended_tweet',
                                        {}).get('full_text') or t['text']
 
@@ -52,6 +55,12 @@ def hashtags(t: Dict) -> str:
     """
     Get all hashtags, including when tweet is truncated (if available)
     """
+    with suppress(KeyError):
+        # noinspection PyTypeChecker
+        return ' '.join([
+            h['text'] for h in pluck(
+                t, 'retweeted_status.entities.hashtags')
+        ])
     # extended tweet
     with suppress(KeyError):
         # noinspection PyTypeChecker
