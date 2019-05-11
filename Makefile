@@ -25,7 +25,7 @@ requirements: test_environment
 
 ## Transform tarred json files to csv
 transform:
-	$(PYTHON_INTERPRETER) src/data/tarred_json2csv.py
+	$(PYTHON_INTERPRETER) src/data/json2csv.py
 
 
 ## Delete all compiled Python files
